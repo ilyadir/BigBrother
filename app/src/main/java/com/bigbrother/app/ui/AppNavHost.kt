@@ -45,13 +45,17 @@ object Routes {
     const val Balance = "Balance"
     const val TopUp = "TopUp"
     const val TrackedApps = "TrackedApps"
+    const val Timer = "Timer"
 }
 
 @Composable
-fun AppNavHost(navController: NavHostController = rememberNavController()) {
+fun AppNavHost(
+    initialRoute: String = Routes.Onboarding,
+    navController: NavHostController = rememberNavController()
+) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Onboarding
+        startDestination = initialRoute
     ) {
         composable(Routes.Onboarding) {
             OnboardingScreen(
@@ -71,6 +75,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         }
         composable(Routes.TrackedApps) {
             TrackedAppsScreen()
+        }
+        composable(Routes.Timer) {
+            TimerScreen()
         }
     }
 }
@@ -250,3 +257,6 @@ fun TopUpScreen() = Text(text = "TopUp")
 
 @Composable
 fun TrackedAppsScreen() = Text(text = "TrackedApps")
+
+@Composable
+fun TimerScreen() = Text(text = "Focus timer")
