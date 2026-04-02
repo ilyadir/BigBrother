@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.bigbrother.app.data.local.dao.TrackedAppDao
 import com.bigbrother.app.domain.repository.BalanceRepository
-import com.bigbrother.app.overlay.LockOverlayController
+import com.bigbrother.app.overlay.OverlayController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,7 +33,7 @@ class UsageMonitorService : LifecycleService() {
     lateinit var balanceRepository: BalanceRepository
 
     @Inject
-    lateinit var overlayController: LockOverlayController
+    lateinit var overlayController: OverlayController
 
     private var monitoringJob: Job? = null
     private var pendingSpendSeconds: Int = 0
@@ -75,13 +75,21 @@ class UsageMonitorService : LifecycleService() {
                 overlayController.hide()
                 flushSpendIfNeeded()
             } else {
-                overlayController.show()
+                overlayController.show(resolveAppLabel(foregroundPackage))
             }
         } else {
             overlayController.hide()
         }
     }
 
+
+
+    private fun resolveAppLabel(packageName: String): String {
+        return runCatching {
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(appInfo).toString()
+        }.getOrDefault(packageName)
+    }
     private suspend fun flushSpendIfNeeded() {
         val minutesToSpend = pendingSpendSeconds / SECONDS_PER_MINUTE
         if (minutesToSpend <= 0) return
