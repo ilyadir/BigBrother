@@ -25,4 +25,21 @@ interface BalanceDao {
             "FROM balance_entries"
     )
     fun streamBalance(): Flow<Int>
+
+    @Query(
+        "SELECT COALESCE(SUM(minutes), 0) " +
+            "FROM balance_entries " +
+            "WHERE type = 'EARN' AND createdAt BETWEEN :dayStartMillis AND :dayEndMillis"
+    )
+    fun sumEarnForPeriod(dayStartMillis: Long, dayEndMillis: Long): Flow<Int>
+
+    @Query(
+        "SELECT COALESCE(SUM(minutes), 0) " +
+            "FROM balance_entries " +
+            "WHERE type = 'SPEND' AND createdAt BETWEEN :dayStartMillis AND :dayEndMillis"
+    )
+    fun sumSpendForPeriod(dayStartMillis: Long, dayEndMillis: Long): Flow<Int>
+
+    @Query("SELECT * FROM balance_entries ORDER BY createdAt DESC LIMIT :limit")
+    fun latestEntries(limit: Int): Flow<List<BalanceEntryEntity>>
 }
