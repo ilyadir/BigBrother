@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -36,6 +37,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bigbrother.app.service.MonitoringPreferences
+import com.bigbrother.app.service.UsageMonitorService
 
 object Routes {
     const val Onboarding = "Onboarding"
@@ -215,7 +218,32 @@ private fun Context.isAccessibilityServiceEnabled(): Boolean {
 }
 
 @Composable
-fun BalanceScreen() = Text(text = "Balance")
+fun BalanceScreen() {
+    val context = LocalContext.current
+    var monitoringEnabled by remember { mutableStateOf(MonitoringPreferences.isEnabled(context)) }
+
+    Card(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Наблюдение включено", style = MaterialTheme.typography.titleMedium)
+            Switch(
+                checked = monitoringEnabled,
+                onCheckedChange = { enabled ->
+                    monitoringEnabled = enabled
+                    if (enabled) {
+                        UsageMonitorService.start(context)
+                    } else {
+                        UsageMonitorService.stop(context)
+                    }
+                }
+            )
+        }
+    }
+}
 
 @Composable
 fun TopUpScreen() = Text(text = "TopUp")
